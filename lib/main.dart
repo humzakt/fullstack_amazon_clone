@@ -1,17 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:fullstack_amazon_clone/common/widgets/bottom_bar.dart';
+import 'package:fullstack_amazon_clone/constants/global_variables.dart';
 import 'package:fullstack_amazon_clone/features/auth/screens/auth_screen.dart';
+import 'package:fullstack_amazon_clone/providers/user_provier.dart';
 import 'package:fullstack_amazon_clone/router.dart';
+import 'package:provider/provider.dart';
 
-import 'constants/global_variables.dart';
+import 'features/auth/services/auth_service.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MultiProvider(providers: [
+    ChangeNotifierProvider(
+      create: (context) => UserProvider(),
+    ),
+  ], child: const MyApp()));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
 
-  // This widget is the root of your application.
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  final AuthService authService = AuthService();
+
+  @override
+  void initState() {
+    super.initState();
+    authService.getUserData(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -31,7 +51,15 @@ class MyApp extends StatelessWidget {
         // useMaterial3: true, // can remove this line
       ),
       onGenerateRoute: (settings) => generateRoute(settings),
-      home: AuthScreen(),
+      home: Provider.of<UserProvider>(context).user.token.isNotEmpty
+          ?
+
+          // Provider.of<UserProvider>(context).user.type == 'user'
+          //     ?
+          // const BottomBar()
+          BottomBar()
+          // : const AdminScreen()
+          : const AuthScreen(),
     );
   }
 }
